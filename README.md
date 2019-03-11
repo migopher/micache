@@ -1,2 +1,2 @@
-# go-filecache
-go file cache
+# go-cache
+go cache
