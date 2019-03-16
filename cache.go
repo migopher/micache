@@ -1,10 +1,11 @@
 package go_cache
 
-type IAnimal interface {
-	Set()
-	Get()
-	IsExists()
+type CachenIterface interface {
+	Set(string,interface{},int64)bool
+	Get() string
+	//IsExists()
 }
+
 
 type File struct {
 	Type string
@@ -12,9 +13,16 @@ type File struct {
 	Prefix string
 	Path string
 }
-type Redis struct {
 
+func (f File)Get(name string) string {
+	return  name
 }
+
+func (f File) Set(key string ,value interface{},time int64) bool{
+	return true
+}
+
+
 
 //func Connect() interface{} {
 //
