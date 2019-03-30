@@ -1,2 +1,2 @@
-# go-cache
-go cache
+# mini-cache
+go mini cache

@@ -1,63 +1,153 @@
+// Copyright 2019 xuzili1994 Author. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package cache
 
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"time"
 )
 
-var Path string ="runtime/cache/"
+var Dir string = "runtime/cache/"
+var Error string
 
-type CachenIterface interface {
-	Set()bool
-	Get() string
-	//IsExists()
+type Cache struct {
+	Time     int64
+	Value    interface{}
+	Expires  int64
+	PathFile string
 }
 
-
-type File struct {
-	Type string
-	Expire string
-	Prefix string
-	Path string
+/**
+key get cache
+ */
+func Get(key string) interface{} {
+	fileName := getFilePath(key)
+	c := Cache{}
+	f, err := os.Open(fileName)
+	if err != nil {
+		Error = err.Error()
+		return nil
+	}
+	r, _ := ioutil.ReadAll(f)
+	json.Unmarshal(r, &c)
+	if c.Expires < time.Now().Unix() {
+		return nil
+	}
+	return c.Value
 }
-
-func (f File)Get(name string) string {
-	return  name
-}
-
-func (f File) Set(key string ,value interface{},time int64) bool{
-	path:=genPath(key)
-	fmt.Println(path)
+/**
+set cache
+ */
+func Set(key string, value interface{}, timeNum int64) bool {
+	pathfile := getFilePath(key)
+	dir, _ := path.Split(pathfile)
+	if mkdirPath(dir) == false {
+		return false
+	}
+	c := Cache{
+		Time:     timeNum,
+		Value:    value,
+		Expires:  time.Now().Unix() + timeNum,
+		PathFile: pathfile,
+	}
+	if setFile(c) == false {
+		return false
+	}
 	return true
 }
+/**
+key get file name
+ */
 func genFileName(name string) string {
-	hash:=md5.New()
+	hash := md5.New()
 	hash.Write([]byte(name))
-	resu:=hash.Sum(nil)
+	resu := hash.Sum(nil)
 	return hex.EncodeToString(resu)
 }
-func genPath(name string)string  {
-	str:=genFileName(name)
-	path:=Path+str[:2]+"/"+str[2:]
-	fmt.Println(path)
+/**
+key get file path
+ */
+func getFilePath(key string) string {
+	fimeName := genFileName(key)
+	filePath := Dir + fimeName[:2] + "/" + fimeName[2:] + ".txt"
+	fmt.Println(filePath)
+	return filePath
+}
+/**
+mkdir
+ */
+func mkdirPath(dir string) bool {
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		Error = err.Error()
+		return false
+	}
+	return true
+}
+/**
+set cache file
+ */
+func setFile(cache Cache) bool {
+	c, _ := json.Marshal(cache)
+	file, err := os.Create(cache.PathFile)
+	defer file.Close()
+	if err != nil {
+		Error = err.Error()
+		return false
+	}
+	_, err = file.Write(c)
+	if err != nil {
+		Error = err.Error()
+		return false
+	}
+	return true
 }
 
+/**
+key is exists
+ */
+func IsExist(key string) bool {
+	filePath := getFilePath(key)
+	f, err := os.Open(filePath)
+	if err != nil && os.IsNotExist(err) {
+		return false
+	}
+	body, _ := ioutil.ReadAll(f)
+	c := Cache{}
+	json.Unmarshal(body, &c)
+	if c.Expires < time.Now().Unix() {
+		return false
+	}
+	return true
+}
 
-
-
-//func Connect() interface{} {
-//
-//}
-
-//func NewCache() *Cache {
-//	//return
-//}
-
-//func (c *File)Set(key string, value string,time int64)  {
-//
-//}
-//
-//func (c *File )IsExists() bool {
-//
-//}
+/**
+delete cache file
+ */
+func Delete(key string) bool {
+	filePath := getFilePath(key)
+	err := os.Remove(filePath)
+	if err != nil {
+		Error = err.Error()
+		return false
+	}
+	return true
+}
