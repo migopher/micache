@@ -18,10 +18,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+	//"reflect"
 	"time"
 )
 
@@ -35,12 +35,17 @@ type Cache struct {
 	PathFile string
 }
 
+type Users struct {
+	Uid int
+	Name string
+}
+
 /**
 key get cache
  */
 func Get(key string) interface{} {
 	fileName := getFilePath(key)
-	c := Cache{}
+	c :=Cache{}
 	f, err := os.Open(fileName)
 	if err != nil {
 		Error = err.Error()
@@ -53,6 +58,28 @@ func Get(key string) interface{} {
 	}
 	return c.Value
 }
+
+/**
+结构体解码
+get struct decoding
+ */
+func GetDecoding(key string,value interface{}) bool {
+	fileName := getFilePath(key)
+	c :=Cache{}
+	f, err := os.Open(fileName)
+	if err != nil {
+		Error = err.Error()
+		return false
+	}
+	r, _ := ioutil.ReadAll(f)
+	json.Unmarshal(r, &c)
+	if c.Expires < time.Now().Unix() {
+		return false
+	}
+	json.Unmarshal([]byte(c.Value.(string)),value)
+	return true
+}
+
 /**
 set cache
  */
@@ -73,6 +100,29 @@ func Set(key string, value interface{}, timeNum int64) bool {
 	}
 	return true
 }
+
+/**
+set struct encoding
+ */
+func SetEncoding(key string, value interface{}, timeNum int64) bool {
+	pathfile := getFilePath(key)
+	dir, _ := path.Split(pathfile)
+	if mkdirPath(dir) == false {
+		return false
+	}
+	v,_:=json.Marshal(value)
+	c := Cache{
+		Time:     timeNum,
+		Value: string(v)   ,
+		Expires:  time.Now().Unix() + timeNum,
+		PathFile: pathfile,
+	}
+	if setFile(c) == false {
+		return false
+	}
+	return true
+}
+
 /**
 key get file name
  */
@@ -88,7 +138,6 @@ key get file path
 func getFilePath(key string) string {
 	fimeName := genFileName(key)
 	filePath := Dir + fimeName[:2] + "/" + fimeName[2:] + ".txt"
-	fmt.Println(filePath)
 	return filePath
 }
 /**
