@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	//"reflect"
 	"time"
 )
 
@@ -35,17 +34,12 @@ type Cache struct {
 	PathFile string
 }
 
-type Users struct {
-	Uid int
-	Name string
-}
-
 /**
 key get cache
  */
 func Get(key string) interface{} {
 	fileName := getFilePath(key)
-	c :=Cache{}
+	c := Cache{}
 	f, err := os.Open(fileName)
 	if err != nil {
 		Error = err.Error()
@@ -63,10 +57,11 @@ func Get(key string) interface{} {
 结构体解码
 get struct decoding
  */
-func GetDecoding(key string,value interface{}) bool {
+func GetDecoding(key string, value interface{}) bool {
 	fileName := getFilePath(key)
-	c :=Cache{}
+	c := Cache{}
 	f, err := os.Open(fileName)
+	defer f.Close()
 	if err != nil {
 		Error = err.Error()
 		return false
@@ -76,7 +71,7 @@ func GetDecoding(key string,value interface{}) bool {
 	if c.Expires < time.Now().Unix() {
 		return false
 	}
-	json.Unmarshal([]byte(c.Value.(string)),value)
+	json.Unmarshal([]byte(c.Value.(string)), value)
 	return true
 }
 
@@ -110,10 +105,10 @@ func SetEncoding(key string, value interface{}, timeNum int64) bool {
 	if mkdirPath(dir) == false {
 		return false
 	}
-	v,_:=json.Marshal(value)
+	v, _ := json.Marshal(value)
 	c := Cache{
 		Time:     timeNum,
-		Value: string(v)   ,
+		Value:    string(v),
 		Expires:  time.Now().Unix() + timeNum,
 		PathFile: pathfile,
 	}
@@ -132,6 +127,7 @@ func genFileName(name string) string {
 	resu := hash.Sum(nil)
 	return hex.EncodeToString(resu)
 }
+
 /**
 key get file path
  */
@@ -140,6 +136,7 @@ func getFilePath(key string) string {
 	filePath := Dir + fimeName[:2] + "/" + fimeName[2:] + ".txt"
 	return filePath
 }
+
 /**
 mkdir
  */
@@ -151,6 +148,7 @@ func mkdirPath(dir string) bool {
 	}
 	return true
 }
+
 /**
 set cache file
  */
@@ -176,6 +174,7 @@ key is exists
 func IsExist(key string) bool {
 	filePath := getFilePath(key)
 	f, err := os.Open(filePath)
+	defer f.Close()
 	if err != nil && os.IsNotExist(err) {
 		return false
 	}
@@ -183,6 +182,7 @@ func IsExist(key string) bool {
 	c := Cache{}
 	json.Unmarshal(body, &c)
 	if c.Expires < time.Now().Unix() {
+		os.Remove(filePath)
 		return false
 	}
 	return true
