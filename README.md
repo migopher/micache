@@ -112,7 +112,7 @@ func main() {
 ````
 
 #### Delete Key
-Delete cache key 
+delete cache key 
 ````sh
 package main
 
