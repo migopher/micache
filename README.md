@@ -2,7 +2,7 @@
 go mini file cache 
 ## get micahce
 ````sh
-$ go get github.com/xuzili1994/micache```
+$ go get github.com/xuzili1994/micache
 ````
 #### Set Cache File Path
 
