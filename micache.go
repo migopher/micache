@@ -62,7 +62,6 @@ func Get(key string) interface{} {
 }
 
 /**
-结构体解码
 get struct decoding
  */
 func GetDecoding(key string, value interface{}) bool {
