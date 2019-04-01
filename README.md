@@ -12,7 +12,7 @@ package main
 import "github.com/xuzili1994/micache"
 
 func main() {
-	//set cache file path cache/
+	// set cache file path cache/
 	micache.Dir="cache/"
 }
 
@@ -26,7 +26,7 @@ package main
 import "github.com/xuzili1994/micache"
 
 func main() {
-	//set key expiration time 3600m
+	// set key expiration time 3600m
 	micache.Set("go", "golang", 3600)
 }
 
@@ -43,7 +43,7 @@ import (
 )
 
 func main() {
-	//get key cache value
+	// get key cache value
 	v := micache.Get("go")
 	fmt.Println(v)
 }
