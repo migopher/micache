@@ -9,7 +9,7 @@ $ go get github.com/xuzili1994/micache
 ````sh
 package main
 
-import "micache"
+import "github.com/xuzili1994/micache"
 
 func main() {
 	//set cache file path cache/
@@ -23,7 +23,7 @@ set cache  and time
 ````sh
 package main
 
-import "micache"
+import "github.com/xuzili1994/micache"
 
 func main() {
 	//set key expiration time 3600m
@@ -39,7 +39,7 @@ package main
 
 import (
 	"fmt"
-	"micache"
+	"github.com/xuzili1994/micache"
 )
 
 func main() {
@@ -56,7 +56,7 @@ set key cache struct
 package main
 
 import (
-	"micache"
+	"github.com/xuzili1994/micache"
 )
 
 type User struct {
@@ -78,7 +78,7 @@ package main
 
 import (
 	"fmt"
-	"micache"
+	"github.com/xuzili1994/micache"
 )
 
 type User struct {
@@ -101,7 +101,7 @@ package main
 
 import (
 	"fmt"
-	"micache"
+	"github.com/xuzili1994/micache"
 )
 
 func main() {
@@ -118,7 +118,7 @@ package main
 
 import (
 	"fmt"
-	"micache"
+	"github.com/xuzili1994/micache"
 )
 
 func main() {
