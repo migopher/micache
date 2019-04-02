@@ -2,14 +2,14 @@
 go mini file cache 
 ## get micahce
 ````sh
-$ go get github.com/xuzili1994/micache
+$ go get github.com/migopher/micache
 ````
 #### Set Cache File Path
 
 ````sh
 package main
 
-import "github.com/xuzili1994/micache"
+import "github.com/migopher/micache"
 
 func main() {
 	// set cache file path cache/
@@ -23,7 +23,7 @@ set cache  and time
 ````sh
 package main
 
-import "github.com/xuzili1994/micache"
+import "github.com/migopher/micache"
 
 func main() {
 	// set key expiration time 3600m
@@ -39,7 +39,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xuzili1994/micache"
+	"github.com/migopher/micache"
 )
 
 func main() {
@@ -56,7 +56,7 @@ set key cache struct
 package main
 
 import (
-	"github.com/xuzili1994/micache"
+	"github.com/migopher/micache"
 )
 
 type User struct {
@@ -78,7 +78,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xuzili1994/micache"
+	"github.com/migopher/micache"
 )
 
 type User struct {
@@ -101,7 +101,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xuzili1994/micache"
+	"github.com/migopher/micache"
 )
 
 func main() {
@@ -118,7 +118,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xuzili1994/micache"
+	"github.com/migopher/micache"
 )
 
 func main() {
