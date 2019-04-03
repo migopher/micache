@@ -62,6 +62,7 @@ func Get(key string) interface{} {
 			return nil
 		}
 	}
+	f.Close()
 	return c.Value
 }
 
@@ -72,7 +73,6 @@ func GetDecoding(key string, value interface{}) bool {
 	filePath := getFilePath(key)
 	c := Cache{}
 	f, err := os.Open(filePath)
-	defer f.Close()
 	if err != nil {
 		Error = err.Error()
 		return false
@@ -87,6 +87,7 @@ func GetDecoding(key string, value interface{}) bool {
 		}
 	}
 	json.Unmarshal([]byte(c.Value.(string)), value)
+	f.Close()
 	return true
 }
 
