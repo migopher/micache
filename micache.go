@@ -39,24 +39,27 @@ type Cache struct {
 	Time     int64
 	Value    interface{}
 	Expires  int64
-	PathFile string
+	FilePath string
 }
 
 /**
 key get cache
  */
 func Get(key string) interface{} {
-	fileName := getFilePath(key)
+	filePath := getFilePath(key)
 	c := Cache{}
-	f, err := os.Open(fileName)
+	f, err := os.Open(filePath)
 	if err != nil {
 		Error = err.Error()
 		return nil
 	}
 	r, _ := ioutil.ReadAll(f)
 	json.Unmarshal(r, &c)
-	if c.Expires < time.Now().Unix() {
-		return nil
+	if c.Time != 0 {
+		if (c.Expires < time.Now().Unix()) {
+			os.Remove(filePath)
+			return nil
+		}
 	}
 	return c.Value
 }
@@ -65,9 +68,9 @@ func Get(key string) interface{} {
 get struct decoding
  */
 func GetDecoding(key string, value interface{}) bool {
-	fileName := getFilePath(key)
+	filePath := getFilePath(key)
 	c := Cache{}
-	f, err := os.Open(fileName)
+	f, err := os.Open(filePath)
 	defer f.Close()
 	if err != nil {
 		Error = err.Error()
@@ -75,8 +78,11 @@ func GetDecoding(key string, value interface{}) bool {
 	}
 	r, _ := ioutil.ReadAll(f)
 	json.Unmarshal(r, &c)
-	if c.Expires < time.Now().Unix() {
-		return false
+	if c.Time != 0 {
+		if (c.Expires < time.Now().Unix()) {
+			os.Remove(filePath)
+			return false
+		}
 	}
 	json.Unmarshal([]byte(c.Value.(string)), value)
 	return true
@@ -86,8 +92,8 @@ func GetDecoding(key string, value interface{}) bool {
 set cache
  */
 func Set(key string, value interface{}, timeNum int64) bool {
-	pathfile := getFilePath(key)
-	dir, _ := path.Split(pathfile)
+	filePath := getFilePath(key)
+	dir, _ := path.Split(filePath)
 	if mkdirPath(dir) == false {
 		return false
 	}
@@ -95,7 +101,7 @@ func Set(key string, value interface{}, timeNum int64) bool {
 		Time:     timeNum,
 		Value:    value,
 		Expires:  time.Now().Unix() + timeNum,
-		PathFile: pathfile,
+		FilePath: filePath,
 	}
 	if setFile(c) == false {
 		return false
@@ -107,8 +113,8 @@ func Set(key string, value interface{}, timeNum int64) bool {
 set struct encoding
  */
 func SetEncoding(key string, value interface{}, timeNum int64) bool {
-	pathfile := getFilePath(key)
-	dir, _ := path.Split(pathfile)
+	filePath := getFilePath(key)
+	dir, _ := path.Split(filePath)
 	if mkdirPath(dir) == false {
 		return false
 	}
@@ -117,7 +123,7 @@ func SetEncoding(key string, value interface{}, timeNum int64) bool {
 		Time:     timeNum,
 		Value:    string(v),
 		Expires:  time.Now().Unix() + timeNum,
-		PathFile: pathfile,
+		FilePath: filePath,
 	}
 	if setFile(c) == false {
 		return false
@@ -161,7 +167,7 @@ set cache file
  */
 func setFile(cache Cache) bool {
 	c, _ := json.Marshal(cache)
-	file, err := os.Create(cache.PathFile)
+	file, err := os.Create(cache.FilePath)
 	defer file.Close()
 	if err != nil {
 		Error = err.Error()
@@ -188,9 +194,11 @@ func IsExist(key string) bool {
 	body, _ := ioutil.ReadAll(f)
 	c := Cache{}
 	json.Unmarshal(body, &c)
-	if c.Expires < time.Now().Unix() {
-		os.Remove(filePath)
-		return false
+	if c.Time != 0 {
+		if (c.Expires < time.Now().Unix()) {
+			os.Remove(filePath)
+			return false
+		}
 	}
 	return true
 }
