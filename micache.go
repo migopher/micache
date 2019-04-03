@@ -57,6 +57,7 @@ func Get(key string) interface{} {
 	json.Unmarshal(r, &c)
 	if c.Time != 0 {
 		if (c.Expires < time.Now().Unix()) {
+			f.Close()
 			os.Remove(filePath)
 			return nil
 		}
@@ -80,6 +81,7 @@ func GetDecoding(key string, value interface{}) bool {
 	json.Unmarshal(r, &c)
 	if c.Time != 0 {
 		if (c.Expires < time.Now().Unix()) {
+			f.Close()
 			os.Remove(filePath)
 			return false
 		}
@@ -213,5 +215,6 @@ func Delete(key string) bool {
 		Error = err.Error()
 		return false
 	}
+
 	return true
 }
