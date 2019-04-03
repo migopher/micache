@@ -26,7 +26,7 @@ package main
 import "github.com/migopher/micache"
 
 func main() {
-	// set key expiration time 3600m
+	// set key expiration time 3600m or 0 is permanent save
 	micache.Set("go", "golang", 3600)
 }
 
