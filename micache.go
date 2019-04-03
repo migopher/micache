@@ -44,56 +44,57 @@ type Cache struct {
 
 /**
 key get cache
- */
+*/
 func Get(key string) interface{} {
 	filePath := getFilePath(key)
 	c := Cache{}
 	f, err := os.Open(filePath)
+
 	if err != nil {
 		Error = err.Error()
 		return nil
 	}
 	r, _ := ioutil.ReadAll(f)
+	f.Close()
 	json.Unmarshal(r, &c)
 	if c.Time != 0 {
 		if (c.Expires < time.Now().Unix()) {
-			f.Close()
-			os.Remove(filePath)
+			defer os.Remove(filePath)
 			return nil
 		}
 	}
-	f.Close()
+
 	return c.Value
 }
 
 /**
 get struct decoding
- */
+*/
 func GetDecoding(key string, value interface{}) bool {
 	filePath := getFilePath(key)
 	c := Cache{}
 	f, err := os.Open(filePath)
+
 	if err != nil {
 		Error = err.Error()
 		return false
 	}
 	r, _ := ioutil.ReadAll(f)
+	f.Close()
 	json.Unmarshal(r, &c)
 	if c.Time != 0 {
 		if (c.Expires < time.Now().Unix()) {
-			f.Close()
-			os.Remove(filePath)
+			defer os.Remove(filePath)
 			return false
 		}
 	}
 	json.Unmarshal([]byte(c.Value.(string)), value)
-	f.Close()
 	return true
 }
 
 /**
 set cache
- */
+*/
 func Set(key string, value interface{}, timeNum int64) bool {
 	filePath := getFilePath(key)
 	dir, _ := path.Split(filePath)
@@ -114,7 +115,7 @@ func Set(key string, value interface{}, timeNum int64) bool {
 
 /**
 set struct encoding
- */
+*/
 func SetEncoding(key string, value interface{}, timeNum int64) bool {
 	filePath := getFilePath(key)
 	dir, _ := path.Split(filePath)
@@ -136,7 +137,7 @@ func SetEncoding(key string, value interface{}, timeNum int64) bool {
 
 /**
 key get file name
- */
+*/
 func genFileName(name string) string {
 	hash := md5.New()
 	hash.Write([]byte(name))
@@ -146,7 +147,7 @@ func genFileName(name string) string {
 
 /**
 key get file path
- */
+*/
 func getFilePath(key string) string {
 	fimeName := genFileName(key)
 	filePath := Dir + fimeName[:2] + "/" + fimeName[2:] + ".txt"
@@ -155,7 +156,7 @@ func getFilePath(key string) string {
 
 /**
 mkdir
- */
+*/
 func mkdirPath(dir string) bool {
 	err := os.MkdirAll(dir, os.ModePerm)
 	if err != nil {
@@ -167,7 +168,7 @@ func mkdirPath(dir string) bool {
 
 /**
 set cache file
- */
+*/
 func setFile(cache Cache) bool {
 	c, _ := json.Marshal(cache)
 	file, err := os.Create(cache.FilePath)
@@ -186,20 +187,20 @@ func setFile(cache Cache) bool {
 
 /**
 key is exists
- */
+*/
 func IsExist(key string) bool {
 	filePath := getFilePath(key)
 	f, err := os.Open(filePath)
-	defer f.Close()
 	if err != nil && os.IsNotExist(err) {
 		return false
 	}
 	body, _ := ioutil.ReadAll(f)
+	f.Close()
 	c := Cache{}
 	json.Unmarshal(body, &c)
 	if c.Time != 0 {
 		if (c.Expires < time.Now().Unix()) {
-			os.Remove(filePath)
+			defer os.Remove(filePath)
 			return false
 		}
 	}
@@ -208,7 +209,7 @@ func IsExist(key string) bool {
 
 /**
 delete cache file
- */
+*/
 func Delete(key string) bool {
 	filePath := getFilePath(key)
 	err := os.Remove(filePath)
