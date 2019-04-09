@@ -74,7 +74,6 @@ func GetDecoding(key string, value interface{}) bool {
 	filePath := getFilePath(key)
 	c := Cache{}
 	f, err := os.Open(filePath)
-
 	if err != nil {
 		Error = err.Error()
 		return false
@@ -88,7 +87,8 @@ func GetDecoding(key string, value interface{}) bool {
 			return false
 		}
 	}
-	json.Unmarshal([]byte(c.Value.(string)), value)
+	v,_:=json.Marshal(c.Value)
+	json.Unmarshal(v,value)
 	return true
 }
 
@@ -113,27 +113,6 @@ func Set(key string, value interface{}, timeNum int64) bool {
 	return true
 }
 
-/**
-set struct encoding
-*/
-func SetEncoding(key string, value interface{}, timeNum int64) bool {
-	filePath := getFilePath(key)
-	dir, _ := path.Split(filePath)
-	if mkdirPath(dir) == false {
-		return false
-	}
-	v, _ := json.Marshal(value)
-	c := Cache{
-		Time:     timeNum,
-		Value:    string(v),
-		Expires:  time.Now().Unix() + timeNum,
-		FilePath: filePath,
-	}
-	if setFile(c) == false {
-		return false
-	}
-	return true
-}
 
 /**
 key get file name

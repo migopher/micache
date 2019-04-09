@@ -50,27 +50,6 @@ func main() {
 
 ````
 
-#### Set Struct
-set key cache struct
-````sh
-package main
-
-import (
-	"github.com/migopher/micache"
-)
-
-type User struct {
-	Uid      int
-	UserName string
-}
-
-func main() {
-	setUser := User{9, "micache"}
-	micache.SetEncoding("go", setUser, 3600)
-}
-
-````
-
 #### Get Struct
 get key cache struct value
 ````sh
