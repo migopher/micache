@@ -20,6 +20,7 @@ func main() {
 
 #### Set Cache
 set cache  and time
+set cache struct value
 ````sh
 package main
 
